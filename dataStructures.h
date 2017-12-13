@@ -26,22 +26,16 @@ class Option{
     string value;
 };
 
-class Options{
-    public:
-    vector<Option> options;
-};
-
 class metaData{
     public:
     string name;
     int numPlayers;
-    Options options;
+    vector<Option> options;
     vector<string> roles;
 };
 
 class Module{
 public:
-    Module * changeModule;
     vector<Command> availableCommands;
     virtual string instructions()=0;
     virtual string runCommand(vector<string> words, int arity)=0;
@@ -53,7 +47,8 @@ public:
 
 class Game : public Module{
 public:
-    virtual Options defaultOptions()=0;
+virtual void init(vector<Option> o)=0;
+    virtual vector<Option> defaultOptions()=0;
 };
 
 enum ResultHeader {Success, Failure, Tie, Other};

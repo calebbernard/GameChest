@@ -34,7 +34,8 @@ def d():
     x = raw_input("> ")
     if x == "#auto":
         return True
-    if x == "#exit" or x == "#e" or x == "#":
+    if x == "#":
+        sendMsg(x)
         s.close()
         exit()
     g(x)

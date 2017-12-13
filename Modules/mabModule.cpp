@@ -1,6 +1,5 @@
 #include "mabModule.h"
-#include "lobbyModule.h"
-
+#include "../stringUtil.h"
 
 using namespace std;
 
@@ -60,33 +59,21 @@ using namespace std;
                 score = 0;
             }
 
-        mabModule::mabModule(Options o){
-            changeModule = 0;
+            mabModule::mabModule(){
+                return;
+            }
+
+        void mabModule::init(Options o){
             addCommand("?", "Instructions for this room", "", "");
             addCommand("pullLever", "Pull a certain lever", "int", "Lever you want to pull");
             addCommand("getInfo", "Get the number of machines and number of turns remaining", "", "");
-            addCommand("reset", "Resets the multi-armed bandit", "", "");
-            addCommand("home", "Return to the lobby module", "", "");
-            g = new mab(strtoi(o[0].value), strtoi(o[i].value), strtoi(o[2].value));
+            g = new mab(strtoi(o.options[0].value), strtoi(o.options[1].value), strtoi(o.options[2].value));
             int champ = g->getBest();
             while (g->getTurns() > 0){
                 g->pullLever(champ);
             }
             cheaterScore = g->getScore();
             g->reset();
-        }
-
-        string mabModule::reset(){
-            string output = "Multi-armed bandit reset.";
-            delete g;
-            g = new mab();
-            int champ = g->getBest();
-            while (g->getTurns() > 0){
-                g->pullLever(champ);
-            }
-            cheaterScore = g->getScore();
-            g->reset();
-            return output;
         }
 
         string mabModule::pullLever(int lever){
@@ -149,8 +136,6 @@ using namespace std;
                 output = pullLever(strtoi(words[1]));
             } else if (words[0] == "getInfo" && arity == 0){
                 output = getInfo();
-            } else if (words[0] == "reset" && arity == 0){
-                output = reset();
             }
             return output;
         }
@@ -159,14 +144,14 @@ using namespace std;
             Options options;
             Option o;
             o.name = "Number of machines";
-            o.value = 1000;
-            options.push_back(o);
+            o.value = itos(1000);
+            options.options.push_back(o);
             o.name = "Worst-case machine odds of 1/X";
-            o.value = 500;
-            options.push_back(o);
+            o.value = itos(500);
+            options.options.push_back(o);
             o.name = "Number of turns";
-            o.value = 10000;
-            options.push_back(o);
+            o.value = itos(10000);
+            options.options.push_back(o);
             return options;
         }
 

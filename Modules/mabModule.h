@@ -38,7 +38,7 @@ class mabModule : public Game{
                 int score;
                 vector<int> bandit;
             public:
-            mab();
+            mab(int _count, int _max, int _startTurns);
             int getCount();
             int getTurns();
             int getScore();
@@ -51,13 +51,14 @@ class mabModule : public Game{
         mab * g;
         int cheaterScore;
     public:
-        mabModule(Options o);
+        mabModule();
+        void init(Options o);
         string reset();
         string pullLever(int lever);
         string getInfo();
         string results();
         string instructions();
         string runCommand(vector<string> words, int arity);
-        static Options defaultOptions();
+        Options defaultOptions();
         static string name();
 };

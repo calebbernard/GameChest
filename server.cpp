@@ -36,16 +36,16 @@ void l(){
 }
 
 int main(){
+    TCP tcp;
+    tcp.init(5555);
+    cout << "Waiting for host...\n";
+    int host = tcp.connect();
+    tcp.output(host, "Hey!");
     Module * lobby = new Lobby();
     string command;
-    while (true){
-        cout << "> ";
-        cin >> command;
-        if (command == "#"){
-            return 0;
-        } else {
-            cout << lobby->parse(command) << '\n';
-        }
+    while (command != "#"){
+        command = tcp.input(host);
+        tcp.output(host, lobby->parse(command));
     }
     
     return 0;
