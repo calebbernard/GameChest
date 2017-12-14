@@ -18,7 +18,8 @@ def recvMsg():
         msg = s.recv(size)
     if msg == "#":
         s.close()
-        return "Server disconnected."
+        print "Server disconnected."
+        exit()
     else:
         return msg
 

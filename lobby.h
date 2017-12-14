@@ -40,6 +40,7 @@ public:
             addCommand("setOption", "Set a specific option", "string string", "Option number~New value");
             addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "");
             addCommand("connect", "Connect to a user", "", "");
+            addCommand("kick", "kick a user", "int", "the user's lobby number");
         }
         return output;
     }
@@ -76,7 +77,7 @@ public:
             output = "No users connected.\n";
         } else {
             for (int x = 0; x < users.size(); x++){
-                output += itos(x) + ". " + users[x].name + "\n";
+                output += itos(x + 1) + ". " + users[x].name + "\n";
             }
         }
         if (users.size() < m->maxPlayers){
@@ -104,9 +105,15 @@ public:
         return output;
     }
 
-    string kick(){
-        string output = "";
-
+    string kick(string user){
+        string output = "Invalid user.";
+        int u = strtoi(user);
+        u--;
+        if (u >= 0 && u < users.size()){
+            tcp->output(users[u].conn, "#");
+            users.erase(users.begin()+u);
+            output = "User " + users[u].name + " kicked.";
+        }
         return output;
     }
 
@@ -126,6 +133,8 @@ public:
             output = getUsers();
         } else if (words[0] == "connect" && arity == 0){
             output = loadUser();
+        } else if (words[0] == "kick" && arity == 1){
+            output = kick(words[1]);
         }
         return output;
     }

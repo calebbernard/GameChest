@@ -7,3 +7,8 @@
     - alternatively we could revert to default when processing the options if that option's value is out of range
 - How to handle loading in users? We could have a blocking load command (problematic, no way to back out, but could be a start)
     - Or, we could spawn children to get the connection, then have a checkConnections command for the host to rope in those socket ids.
+- For the purposes of host-passing-off duties as well as to lay the foundation for eventual turn-management in submodules,
+    I should add a turn management function to the base module class. Lobby turn management would poll whoever the host is over and over.
+    Single-user modules would poll their one user over and over. Multi-user modules would have fancy logic.
+    - Also, the lobby could use this to let users select user-specific module options if that happens. However, I expect modules will perform
+        their custom user-specific logic in a setup method.
