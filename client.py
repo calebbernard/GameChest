@@ -11,12 +11,17 @@ def sendMsg(m):
     s.send(l + m)
 
 def recvMsg():
+    msg = ""
     headerSize = 5
     size = int(s.recv(headerSize))
     if size > 0:
-        return s.recv(size)
+        msg = s.recv(size)
+    if msg == "#":
+        s.close()
+        return "Server disconnected."
     else:
-        return ""
+        return msg
+
 
 def r():
     print recvMsg()
@@ -47,7 +52,7 @@ def i():
         finished = d()
 
 # client code goes here
-r()  
+r()
 i()
 
 s.close()

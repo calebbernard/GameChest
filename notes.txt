@@ -1,0 +1,9 @@
+- Need some way to handle users disconnecting
+- Some way to handle passing off host duties (might should move host processing loop into lobby module)
+- Perhaps a results enum member for win-by-default when other players forfeit or disconnect unexpectedly
+- I think I'm on track for this, but make sure that modules with a variable number of users are handled appropriately
+- Consider implementing type checking in general (low priority for now)
+- Add in some kind of min-max constraint checking to option object (at least for ints) so we don't get rejected when loading module
+    - alternatively we could revert to default when processing the options if that option's value is out of range
+- How to handle loading in users? We could have a blocking load command (problematic, no way to back out, but could be a start)
+    - Or, we could spawn children to get the connection, then have a checkConnections command for the host to rope in those socket ids.

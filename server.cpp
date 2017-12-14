@@ -40,8 +40,9 @@ int main(){
     tcp.init(5555);
     cout << "Waiting for host...\n";
     int host = tcp.connect();
-    tcp.output(host, "Hey!");
-    Module * lobby = new Lobby();
+    cout << "Host connected.\n";
+    tcp.output(host, "Hey! You're the host.");
+    Module * lobby = new Lobby(& tcp);
     string command;
     while (command != "#"){
         command = tcp.input(host);

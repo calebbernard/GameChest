@@ -7,15 +7,18 @@
 #include "dataStructures.h"
 #include "stringUtil.h"
 #include "Modules/mabModule.h"
+#include "io.h"
 
 class Lobby : public Module{
     metaData * m;
     Game * game;
     vector<User> users;
+    TCP  * tcp;
 public:
-    Lobby(){
+    Lobby(TCP * _tcp){
         addCommand("module", "Select a module", "string", "name of the module you want");
         addCommand("list", "List all available modules", "", "");
+        tcp = _tcp;
     }
     string listModules(){
         return "mab";
@@ -36,6 +39,7 @@ public:
             addCommand("listOptions", "List all of the settable options for this game.", "", "");
             addCommand("setOption", "Set a specific option", "string string", "Option number~New value");
             addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "");
+            addCommand("connect", "Connect to a user", "", "");
         }
         return output;
     }
@@ -72,15 +76,37 @@ public:
             output = "No users connected.\n";
         } else {
             for (int x = 0; x < users.size(); x++){
-                output += users[x].name;
-                if (x < users.size() - 1){
-                    output += "\n";
-                }
+                output += itos(x) + ". " + users[x].name + "\n";
             }
         }
         if (users.size() < m->maxPlayers){
             output += "Still waiting on " + itos(m->maxPlayers - users.size()) + conditionalPlural(" user.", " users.", (m->maxPlayers - users.size()));
+        } else {
+            output += "Lobby full.";
         }
+        return output;
+    }
+
+    string loadUser(){
+        string output = "Error: Lobby already full.";
+        if (users.size() < m->maxPlayers){
+            cout << "Loading user...\n";
+            int user = tcp->connect();
+            tcp->output(user, "Welcome! What is your name?");
+            string name = tcp->input(user);
+            tcp-> output(user, "Cool. Please wait for launch.");
+            User u;
+            u.name = name;
+            u.conn = user;
+            users.push_back(u);
+            output = "User " + name + " loaded!";
+        }
+        return output;
+    }
+
+    string kick(){
+        string output = "";
+
         return output;
     }
 
@@ -98,6 +124,8 @@ public:
             output = setOption(words[1], words[2]);
         } else if (words[0] == "listUsers" && arity == 0){
             output = getUsers();
+        } else if (words[0] == "connect" && arity == 0){
+            output = loadUser();
         }
         return output;
     }
