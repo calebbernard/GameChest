@@ -63,11 +63,11 @@ using namespace std;
                 return;
             }
 
-        void mabModule::init(Options o){
+        void mabModule::init(metaData m){
             addCommand("?", "Instructions for this room", "", "");
             addCommand("pullLever", "Pull a certain lever", "int", "Lever you want to pull");
             addCommand("getInfo", "Get the number of machines and number of turns remaining", "", "");
-            g = new mab(strtoi(o.options[0].value), strtoi(o.options[1].value), strtoi(o.options[2].value));
+            g = new mab(strtoi(m.options[0].value), strtoi(m.options[1].value), strtoi(m.options[2].value));
             int champ = g->getBest();
             while (g->getTurns() > 0){
                 g->pullLever(champ);
@@ -140,19 +140,19 @@ using namespace std;
             return output;
         }
 
-        Options mabModule::defaultOptions(){
-            Options options;
+        metaData mabModule::defaultOptions(){
+            metaData m;
             Option o;
             o.name = "Number of machines";
             o.value = itos(1000);
-            options.options.push_back(o);
+            m.options.push_back(o);
             o.name = "Worst-case machine odds of 1/X";
             o.value = itos(500);
-            options.options.push_back(o);
+            m.options.push_back(o);
             o.name = "Number of turns";
             o.value = itos(10000);
-            options.options.push_back(o);
-            return options;
+            m.options.push_back(o);
+            return m;
         }
 
         string mabModule::name(){

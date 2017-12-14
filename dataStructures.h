@@ -29,7 +29,7 @@ class Option{
 class metaData{
     public:
     string name;
-    int numPlayers;
+    int maxPlayers;
     vector<Option> options;
     vector<string> roles;
 };
@@ -47,13 +47,14 @@ public:
 
 class Game : public Module{
 public:
-virtual void init(vector<Option> o)=0;
-    virtual vector<Option> defaultOptions()=0;
+virtual void init(metaData m)=0;
+    virtual metaData defaultOptions()=0;
 };
 
 enum ResultHeader {Success, Failure, Tie, Other};
 
 class Result{
+    public:
     ResultHeader header;
     string message;
     Result(ResultHeader r, string msg);
@@ -61,6 +62,7 @@ class Result{
 };
 
 class User{
+    public:
     string name;
     int conn;
 };
