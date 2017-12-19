@@ -70,10 +70,10 @@ public:
   riddle(){
     reset();
 
-    addCommand("flip", "flip a pile", "int", "number of pile to flip");
-    addCommand("move", "move cards from one pile to another", "int int int", "number of from pile~number of to pile~number of cards to move");
-    addCommand("list", "lists number of face-ups in each pile per deck", "", "");
-    addCommand("reset", "Resets the worlds", "", "");
+    addCommand("flip", "flip a pile", "int", "number of pile to flip", StateChangeAction);
+    addCommand("move", "move cards from one pile to another", "int int int", "number of from pile~number of to pile~number of cards to move", StateChangeAction);
+    addCommand("list", "lists number of face-ups in each pile per deck", "", "", NonStateChangeAction);
+    addCommand("reset", "Resets the worlds", "", "", StateChangeAction);
   }
 
   string instructions(){

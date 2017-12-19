@@ -14,12 +14,15 @@ public:
     string description;
 };
 
+enum ActionType {NonStateChangeAction, StateChangeAction, MetaAction, EndTurnAction};
+
 class Command{
 public:
     string keyword;
     string description;
     vector<Argument> argument;
-    void set(string keyword_, string description_, string argTypes_, string argDescriptions_);
+    ActionType action;
+    void set(string keyword_, string description_, string argTypes_, string argDescriptions_, ActionType action_);
     string describe();
 };
 
@@ -45,21 +48,20 @@ class User{
     bool outputLast;
 };
 
-enum ActionType {};
-
 class Module{
 public:
     TCP * tcp;
     vector<User*> users;
+    User * current;
     vector<Command> availableCommands;
     virtual string instructions()=0;
     virtual string runCommand(vector<string> words, int arity)=0;
     virtual string invalidInput(bool blankString);
     virtual string parse(string request);
-    virtual void addCommand(string keyword, string description, string argTypes, string argDescriptions, );
+    virtual void addCommand(string keyword, string description, string argTypes, string argDescriptions, ActionType action);
     virtual void removeCommand(string keyword_, int arity_);
     virtual void turnManager();
-    virtual User * next(User * current);
+    virtual User * next();
     virtual void broadcast(string msg);
 };
 

@@ -66,9 +66,9 @@ using namespace std;
         void mabModule::init(metaData m, vector<User*> u, TCP * _tcp){
             tcp = _tcp;
             users = u;
-            addCommand("?", "Instructions for this room", "", "");
-            addCommand("pullLever", "Pull a certain lever", "int", "Lever you want to pull");
-            addCommand("getInfo", "Get the number of machines and number of turns remaining", "", "");
+            addCommand("?", "Instructions for this room", "", "", NonStateChangeAction);
+            addCommand("pullLever", "Pull a certain lever", "int", "Lever you want to pull", StateChangeAction);
+            addCommand("getInfo", "Get the number of machines and number of turns remaining", "", "", NonStateChangeAction);
             g = new mab(strtoi(m.options[0].value), strtoi(m.options[1].value), strtoi(m.options[2].value));
             int champ = g->getBest();
             while (g->getTurns() > 0){
@@ -92,7 +92,7 @@ using namespace std;
                 }
             }
             if (g->getTurns() < 1){
-                addCommand("result", "Check your results", "", "");
+                addCommand("result", "Check your results", "", "", NonStateChangeAction);
                 removeCommand("pullLever", 1);
                 removeCommand("getInfo", 0);
             }

@@ -14,13 +14,20 @@ class TCP;
 class Lobby : public Module{
     metaData * m;
     Game * game;
+    User * host;
 public:
-    Lobby(TCP * _tcp, User * host){
-        users.push_back(host);
-        addCommand("module", "Select a module", "string", "name of the module you want");
-        addCommand("list", "List all available modules", "", "");
+    Lobby(TCP * _tcp, User * host_){
+        users.push_back(host_);
+        host = host_;
+        addCommand("module", "Select a module", "string", "name of the module you want", StateChangeAction);
+        addCommand("list", "List all available modules", "", "", NonStateChangeAction);
         tcp = _tcp;
     }
+
+    User * next(){
+        return host;
+    }
+
     string listModules(){
         return "mab";
     }
@@ -37,12 +44,13 @@ public:
             output = m->name + " module selected.\nMaximum players: " + itos(m->maxPlayers);
         }
         if (found){
-            addCommand("listOptions", "List all of the settable options for this game.", "", "");
-            addCommand("setOption", "Set a specific option", "string string", "Option number~New value");
-            addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "");
-            addCommand("connect", "Connect to a user", "", "");
-            addCommand("kick", "kick a user", "int", "the user's lobby number");
-            addCommand("testPlay", "test", "", "");
+            addCommand("listOptions", "List all of the settable options for this game.", "", "", NonStateChangeAction);
+            addCommand("setOption", "Set a specific option", "string string", "Option number~New value", StateChangeAction);
+            addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "", NonStateChangeAction);
+            addCommand("connect", "Connect to a user", "", "", StateChangeAction);
+            addCommand("kick", "kick a user", "int", "the user's lobby number", StateChangeAction);
+            addCommand("testPlay", "test", "", "", MetaAction);
+            addCommand("promote", "Promote a user to host", "int", "the user's lobby number", MetaAction);
         }
         return output;
     }
@@ -125,6 +133,17 @@ public:
       return output;
     }
 
+    string promote(string user){
+        string output = "Invalid user.";
+        int u = strtoi(user);
+        u--;
+        if (u >= 0 && u < users.size()){
+            host = users[u];
+            output = users[u]->name + " promoted to host.";
+        }
+        return output;
+    }
+
     string runCommand(vector<string> words, int arity){
         string output = "Error processing command...";
         if (words[0] == "?" && arity == 0){
@@ -145,6 +164,8 @@ public:
             output = kick(words[1]);
         } else if (words[0] == "testPlay" && arity == 0){
           output = testPlay();
+        } else if (words[0] == "promote" && arity == 1){
+          output = promote(words[1]);
         }
         return output;
     }

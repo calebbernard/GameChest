@@ -1,8 +1,9 @@
 #include "dataStructures.h"
 
-    void Command::set(string keyword_ = "", string description_ = "No description has been entered for this command.", string argTypes_= "", string argDescriptions_ = ""){
+    void Command::set(string keyword_ = "", string description_ = "No description has been entered for this command.", string argTypes_= "", string argDescriptions_ = "", ActionType action_ = MetaAction){
         keyword = keyword_;
         description = description_;
+        action = action_;
         vector<string> argTypes;
         vector<string> argDescriptions;
         if (argTypes_ != ""){
@@ -29,6 +30,15 @@
         output += "\n" + keyword + " takes " + itos(argument.size()) + " arguments.";
         for (int x = 0; x < argument.size(); x++){
             output += "\n\t" + itos(x+1) + ". " + argument[x].type + " - " + argument[x].description;
+        }
+        if (action == NonStateChangeAction){
+          output += "\nThis action cannot change module state.";
+        } else if (action == StateChangeAction){
+          output += "\nThis action can change module state.";
+        } else if (action == EndTurnAction){
+          output += "\nThis action will end your turn.";
+        } else if (action == MetaAction){
+          output += "\nThis action has a meta-module effect.";
         }
         return output;
     }
@@ -86,14 +96,14 @@
         }
     }
 
-    void Module::addCommand(string keyword, string description, string argTypes, string argDescriptions){
+    void Module::addCommand(string keyword, string description, string argTypes, string argDescriptions, ActionType action){
         vector<string> args;
         if (argTypes != ""){
             splitString(argTypes, args, " ");
         }
         removeCommand(keyword, args.size());
         Command c;
-        c.set(keyword, description, argTypes, argDescriptions);
+        c.set(keyword, description, argTypes, argDescriptions, action);
         availableCommands.push_back(c);
     }
 
@@ -133,7 +143,7 @@
 
     void Module::turnManager(){
       broadcast("Module started");
-      User * current = users[0];
+      current = users[0];
       bool gameFinished = false;
       while (!gameFinished){
           string input = tcp->input(current);
@@ -142,11 +152,11 @@
             return;
           }
           tcp->output(current, parse(input));
-          current = next(current);
+          current = next();
       }
     }
 
-    User * Module::next(User * current){
+    User * Module::next(){
       for (int x = 0; x < users.size(); x++){
         if (users[x]->conn == current->conn){
           if (x < users.size() - 1){
