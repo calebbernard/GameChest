@@ -13,7 +13,7 @@ class metaMabModule : public metaData{
 public:
     metaMabModule(){
         name = "Multi-armed bandit";
-        maxPlayers = 1;
+        maxPlayers = 2;
         Option o;
         o.name = "Number of machines";
         o.value = "1000";
@@ -52,7 +52,7 @@ class mabModule : public Game{
         int cheaterScore;
     public:
         mabModule();
-        void init(metaData m);
+        void init(metaData m, vector<User*> u, TCP * _tcp);
         string reset();
         string pullLever(int lever);
         string getInfo();

@@ -63,7 +63,9 @@ using namespace std;
                 return;
             }
 
-        void mabModule::init(metaData m){
+        void mabModule::init(metaData m, vector<User*> u, TCP * _tcp){
+            tcp = _tcp;
+            users = u;
             addCommand("?", "Instructions for this room", "", "");
             addCommand("pullLever", "Pull a certain lever", "int", "Lever you want to pull");
             addCommand("getInfo", "Get the number of machines and number of turns remaining", "", "");
@@ -136,22 +138,14 @@ using namespace std;
                 output = pullLever(strtoi(words[1]));
             } else if (words[0] == "getInfo" && arity == 0){
                 output = getInfo();
+            } else if (words[0] == "result" && arity == 0){
+              output = results();
             }
             return output;
         }
 
         metaData mabModule::defaultOptions(){
-            metaData m;
-            Option o;
-            o.name = "Number of machines";
-            o.value = itos(1000);
-            m.options.push_back(o);
-            o.name = "Worst-case machine odds of 1/X";
-            o.value = itos(500);
-            m.options.push_back(o);
-            o.name = "Number of turns";
-            o.value = itos(10000);
-            m.options.push_back(o);
+            metaMabModule m;
             return m;
         }
 

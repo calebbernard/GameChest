@@ -3,7 +3,10 @@
 #include <string>
 #include <vector>
 #include "stringUtil.h"
+#include "io.h"
 using namespace std;
+
+class TCP;
 
 class Argument{
 public:
@@ -31,27 +34,36 @@ class metaData{
     string name;
     int maxPlayers;
     vector<Option> options;
-    vector<string> roles;
+    //vector<string> roles;
 };
+
+class User{
+    public:
+    User();
+    string name;
+    int conn;
+    bool outputLast;
+};
+
+enum ActionType {};
 
 class Module{
 public:
+    TCP * tcp;
+    vector<User*> users;
     vector<Command> availableCommands;
     virtual string instructions()=0;
     virtual string runCommand(vector<string> words, int arity)=0;
     virtual string invalidInput(bool blankString);
     virtual string parse(string request);
-    virtual void addCommand(string keyword, string description, string argTypes, string argDescriptions);
+    virtual void addCommand(string keyword, string description, string argTypes, string argDescriptions, );
     virtual void removeCommand(string keyword_, int arity_);
+    virtual void turnManager();
+    virtual User * next(User * current);
+    virtual void broadcast(string msg);
 };
 
-class Game : public Module{
-public:
-virtual void init(metaData m)=0;
-    virtual metaData defaultOptions()=0;
-};
-
-enum ResultHeader {Success, Failure, Tie, Other};
+enum ResultHeader {Success, Failure, Tie, Error, Other};
 
 class Result{
     public:
@@ -61,8 +73,8 @@ class Result{
     string get();
 };
 
-class User{
-    public:
-    string name;
-    int conn;
+class Game : public Module{
+public:
+    virtual void init(metaData m, vector<User*> u, TCP * _tcp)=0;
+    virtual metaData defaultOptions()=0;
 };

@@ -78,17 +78,23 @@
         return output;
     }
 
-    void Module::addCommand(string keyword, string description, string argTypes, string argDescriptions){
-        Command c;
-        c.set(keyword, description, argTypes, argDescriptions);
-        availableCommands.push_back(c);
-    }
     void Module::removeCommand(string keyword_, int arity_){
         for (int x = 0; x < availableCommands.size(); x++){
             if (keyword_ == availableCommands[x].keyword && arity_ == availableCommands[x].argument.size()){
                 availableCommands.erase(availableCommands.begin() + x);
             }
         }
+    }
+
+    void Module::addCommand(string keyword, string description, string argTypes, string argDescriptions){
+        vector<string> args;
+        if (argTypes != ""){
+            splitString(argTypes, args, " ");
+        }
+        removeCommand(keyword, args.size());
+        Command c;
+        c.set(keyword, description, argTypes, argDescriptions);
+        availableCommands.push_back(c);
     }
 
     Result::Result(ResultHeader r, string msg){
@@ -104,6 +110,8 @@
             output = "Failure";
         } else if (header == Tie){
             output = "Tie";
+        } else if (header == Error){
+            output = "Error";
         } else {
             output = "Finish";
         }
@@ -112,4 +120,43 @@
         }
         output += message;
         return output;
+    }
+
+    void Module::broadcast(string msg){
+        for (int x = 0; x < users.size(); x++){
+            if (users[x]->outputLast){
+                tcp->input(users[x]);
+            }
+            tcp->output(users[x], "Broadcast: " + msg);
+        }
+    }
+
+    void Module::turnManager(){
+      broadcast("Module started");
+      User * current = users[0];
+      bool gameFinished = false;
+      while (!gameFinished){
+          string input = tcp->input(current);
+          if (input == "#"){
+            broadcast(current->name + " disconnected. Returning to lobby.");
+            return;
+          }
+          tcp->output(current, parse(input));
+          current = next(current);
+      }
+    }
+
+    User * Module::next(User * current){
+      for (int x = 0; x < users.size(); x++){
+        if (users[x]->conn == current->conn){
+          if (x < users.size() - 1){
+            return users[x+1];
+          }
+        }
+      }
+      return users[0];
+    }
+
+    User::User(){
+        outputLast = false;
     }

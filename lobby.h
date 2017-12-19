@@ -9,13 +9,14 @@
 #include "Modules/mabModule.h"
 #include "io.h"
 
+class TCP;
+
 class Lobby : public Module{
     metaData * m;
     Game * game;
-    vector<User> users;
-    TCP  * tcp;
 public:
-    Lobby(TCP * _tcp){
+    Lobby(TCP * _tcp, User * host){
+        users.push_back(host);
         addCommand("module", "Select a module", "string", "name of the module you want");
         addCommand("list", "List all available modules", "", "");
         tcp = _tcp;
@@ -41,6 +42,7 @@ public:
             addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "");
             addCommand("connect", "Connect to a user", "", "");
             addCommand("kick", "kick a user", "int", "the user's lobby number");
+            addCommand("testPlay", "test", "", "");
         }
         return output;
     }
@@ -77,7 +79,7 @@ public:
             output = "No users connected.\n";
         } else {
             for (int x = 0; x < users.size(); x++){
-                output += itos(x + 1) + ". " + users[x].name + "\n";
+                output += itos(x + 1) + ". " + users[x]->name + " - " + itos(users[x]->conn) + "\n";
             }
         }
         if (users.size() < m->maxPlayers){
@@ -92,15 +94,13 @@ public:
         string output = "Error: Lobby already full.";
         if (users.size() < m->maxPlayers){
             cout << "Loading user...\n";
-            int user = tcp->connect();
-            tcp->output(user, "Welcome! What is your name?");
-            string name = tcp->input(user);
-            tcp-> output(user, "Cool. Please wait for launch.");
-            User u;
-            u.name = name;
-            u.conn = user;
+            User * u = new User();
+            u->conn = tcp->connect();
+            tcp->output(u, "Welcome! What is your name?");
+            u->name = tcp->input(u);
+            tcp-> output(u, "Cool. Please wait for launch.");
             users.push_back(u);
-            output = "User " + name + " loaded!";
+            output = "User " + u->name + " loaded!";
         }
         return output;
     }
@@ -110,11 +110,19 @@ public:
         int u = strtoi(user);
         u--;
         if (u >= 0 && u < users.size()){
-            tcp->output(users[u].conn, "#");
+            tcp->output(users[u], "#");
+            output = "User " + users[u]->name + " kicked.";
+            delete users[u];
             users.erase(users.begin()+u);
-            output = "User " + users[u].name + " kicked.";
         }
         return output;
+    }
+
+    string testPlay(){
+      string output = "";
+      game->init(*m, users, tcp);
+      game->turnManager();
+      return output;
     }
 
     string runCommand(vector<string> words, int arity){
@@ -135,6 +143,8 @@ public:
             output = loadUser();
         } else if (words[0] == "kick" && arity == 1){
             output = kick(words[1]);
+        } else if (words[0] == "testPlay" && arity == 0){
+          output = testPlay();
         }
         return output;
     }

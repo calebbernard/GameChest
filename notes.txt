@@ -12,3 +12,4 @@
     Single-user modules would poll their one user over and over. Multi-user modules would have fancy logic.
     - Also, the lobby could use this to let users select user-specific module options if that happens. However, I expect modules will perform
         their custom user-specific logic in a setup method.
+- result handling should be module override-able but there should be a few basic styles like winners/losers & scoreboard
