@@ -35,7 +35,7 @@ class Option{
 class metaData{
     public:
     string name;
-    int maxPlayers;
+    vector<int> numPlayers;
     vector<Option> options;
     //vector<string> roles;
 };

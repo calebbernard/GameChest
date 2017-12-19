@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <stdlib.h>
 #include <time.h>
 #include "dataStructures.h"
@@ -34,6 +35,59 @@ public:
     string instructions(){
         return "Testing";
     }
+
+    bool validNumUsers(){
+      bool output = false;
+      for (int x = 0; x < m->numPlayers.size(); x++){
+        if (users.size() == m->numPlayers[x]){
+          output = true;
+        }
+      }
+      return output;
+    }
+
+    // Takes a vector<int>, returns true if the collection is consecutive and ascending, otherwise returns false.
+    bool consecutiveAscendingInts(vector<int> list){
+        bool output = true;
+        int first = list[0];
+        for (int x = 0; x < list.size(); x++){
+            if (list[x] != first + x){
+                output = false;
+            }
+        }
+        return output;
+    }
+
+    string listRequiredUsers(){
+      string output = m->name + " ";
+      if (m->numPlayers.size() == 1){
+        output += "requires " + itos(m->numPlayers[0]) + " player" + conditionalPlural(".", "s.", m->numPlayers[0]);
+      } else {
+          if (consecutiveAscendingInts(m->numPlayers)){
+              output += "is for " + itos(m->numPlayers[0]) + "-" + itos(m->numPlayers[m->numPlayers.size()-1]) + " players.";
+          } else {
+              output += "can be played with ";
+              for (int x = 0; x < m->numPlayers.size(); x++){
+                  output += itos(m->numPlayers[x]);
+                  if (x < m->numPlayers.size() - 2){
+                    output += ", ";
+                  } else if (x < m->numPlayers.size() - 1){
+                    output += " or ";
+                  } else {
+                    output += " players.";
+                  }
+              }
+          }
+      }
+      output += "\nCurrently there " + conditionalPlural("is", "are", users.size()) + " " + itos(users.size()) + " " + conditionalPlural("player.", "players.", users.size());
+      if (validNumUsers()){
+          output += " Module can be launched.";
+      } else {
+          output += " Module not ready for launch.";
+      }
+      return output;
+    }
+
     string selectModule(string module){ // Add to this with first removing the option-altering commands, then at the end if found == true, add them back
         string output = "Module not found.";
         bool found = false;
@@ -41,7 +95,9 @@ public:
             found = true;
             m = new metaMabModule();
             game = new mabModule();
-            output = m->name + " module selected.\nMaximum players: " + itos(m->maxPlayers);
+            output = m->name + " module selected.\n";
+            sort(m->numPlayers.begin(), m->numPlayers.begin() + m->numPlayers.size());
+            output += listRequiredUsers();
         }
         if (found){
             addCommand("listOptions", "List all of the settable options for this game.", "", "", NonStateChangeAction);
@@ -90,26 +146,20 @@ public:
                 output += itos(x + 1) + ". " + users[x]->name + " - " + itos(users[x]->conn) + "\n";
             }
         }
-        if (users.size() < m->maxPlayers){
-            output += "Still waiting on " + itos(m->maxPlayers - users.size()) + conditionalPlural(" user.", " users.", (m->maxPlayers - users.size()));
-        } else {
-            output += "Lobby full.";
-        }
+        output += listRequiredUsers();
         return output;
     }
 
     string loadUser(){
-        string output = "Error: Lobby already full.";
-        if (users.size() < m->maxPlayers){
-            cout << "Loading user...\n";
-            User * u = new User();
-            u->conn = tcp->connect();
-            tcp->output(u, "Welcome! What is your name?");
-            u->name = tcp->input(u);
-            tcp-> output(u, "Cool. Please wait for launch.");
-            users.push_back(u);
-            output = "User " + u->name + " loaded!";
-        }
+        string output = "Unknown error.";
+        cout << "Loading user...\n";
+        User * u = new User();
+        u->conn = tcp->connect();
+        tcp->output(u, "Welcome! What is your name?");
+        u->name = tcp->input(u);
+        tcp-> output(u, "Cool. Please wait for launch.");
+        users.push_back(u);
+        output = "User " + u->name + " loaded!";
         return output;
     }
 
@@ -127,9 +177,13 @@ public:
     }
 
     string testPlay(){
-      string output = "";
-      game->init(*m, users, tcp);
-      game->turnManager();
+      string output = "Unknown error.";
+      if (validNumUsers()){
+        game->init(*m, users, tcp);
+        game->turnManager();
+      } else {
+        output = "Cannot start module: Invalid number of users in lobby.";
+      }
       return output;
     }
 

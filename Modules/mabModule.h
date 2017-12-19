@@ -13,7 +13,10 @@ class metaMabModule : public metaData{
 public:
     metaMabModule(){
         name = "Multi-armed bandit";
-        maxPlayers = 2;
+        numPlayers.push_back(3);
+        numPlayers.push_back(4);
+        numPlayers.push_back(6);
+        numPlayers.push_back(5);
         Option o;
         o.name = "Number of machines";
         o.value = "1000";
