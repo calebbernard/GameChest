@@ -36,9 +36,9 @@ void splitString(string s, vector<string> &arr, string delimiter){
     arr.push_back(s);
 }
 
-string conditionalPlural(string singular, string plural, int count){
-    if (count == 1){
-        return singular;
+string conditionalString(string a, string b, bool condition){
+    if (condition){
+        return a;
     }
-    return plural;
+    return b;
 }

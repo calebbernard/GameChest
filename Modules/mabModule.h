@@ -1,9 +1,6 @@
+// Multi-Armed Bandit
 #pragma once
 
-#include <string>
-#include <vector>
-#include <stdlib.h>
-#include <time.h>
 #include "../dataStructures.h"
 #include "../stringUtil.h"
 
@@ -13,10 +10,8 @@ class metaMabModule : public metaData{
 public:
     metaMabModule(){
         name = "Multi-armed bandit";
-        numPlayers.push_back(3);
-        numPlayers.push_back(4);
-        numPlayers.push_back(6);
-        numPlayers.push_back(5);
+        numPlayers.push_back(1);
+        numPlayersDesc = "";
         Option o;
         o.name = "Number of machines";
         o.value = "1000";
@@ -54,7 +49,6 @@ class mabModule : public Game{
         mab * g;
         int cheaterScore;
     public:
-        mabModule();
         void init(metaData m, vector<User*> u, TCP * _tcp);
         string reset();
         string pullLever(int lever);
@@ -62,6 +56,6 @@ class mabModule : public Game{
         string results();
         string instructions();
         string runCommand(vector<string> words, int arity);
-        metaData defaultOptions();
+        metaData* defaultOptions();
         static string name();
 };

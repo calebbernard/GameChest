@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 #include "stringUtil.h"
 #include "io.h"
 using namespace std;
@@ -36,6 +38,11 @@ class metaData{
     public:
     string name;
     vector<int> numPlayers;
+    // this is optional; set it to "" in most cases or something else if there's
+        // a pattern or rule to your number of players, like 'any even number from 2-100',
+        // and it would be easier to just say that than to list out every acceptable
+        // number to the user.
+    string numPlayersDesc;
     vector<Option> options;
     //vector<string> roles;
 };
@@ -78,5 +85,5 @@ class Result{
 class Game : public Module{
 public:
     virtual void init(metaData m, vector<User*> u, TCP * _tcp)=0;
-    virtual metaData defaultOptions()=0;
+    virtual metaData* defaultOptions()=0;
 };

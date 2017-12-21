@@ -25,9 +25,8 @@
     }
     string Command::describe(){
         int counter = 0;
-        string pluralize = "";
         string output = keyword + " - " + description;
-        output += "\n" + keyword + " takes " + itos(argument.size()) + " arguments.";
+        output += "\n" + keyword + " takes " + itos(argument.size()) + " argument" + conditionalString(".", "s.", argument.size() == 1);
         for (int x = 0; x < argument.size(); x++){
             output += "\n\t" + itos(x+1) + ". " + argument[x].type + " - " + argument[x].description;
         }
@@ -49,14 +48,8 @@
         } else {
             output = "Invalid command. Current options:";
         }
-        string pluralize = "";
         for (int x = 0; x < availableCommands.size(); x++){
-            if (availableCommands[x].argument.size() != 1){
-                pluralize = "s";
-            } else {
-                pluralize = "";
-            }
-            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword + " (" + itos(availableCommands[x].argument.size()) + " argument" + pluralize + ")";
+            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword + " (" + itos(availableCommands[x].argument.size()) + " argument" + conditionalString("", "s", availableCommands[x].argument.size() == 1) + ")";
         }
         output += "\nFor more instructions about a particular command on this list, type \"[command name] [# of args]?\"";
         return output;

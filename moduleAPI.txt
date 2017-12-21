@@ -1,0 +1,10 @@
+To register a module in the system:
+  1. Put its header in the Modules directory
+  2. Whatever your class name is, make sure the header is named that, plus a .h extension.
+  3. Make sure modulesList.h is created by the auto-builder before compilation.
+
+To create a successful module:
+  - You'll need to #include "../dataStructures.h"
+  - You may find "../stringUtil.h" useful as well
+  - Make your module inherit from public Game
+  - First line in .h file should be // [name of game]. Comment + leading space is important

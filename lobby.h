@@ -7,8 +7,9 @@
 #include <time.h>
 #include "dataStructures.h"
 #include "stringUtil.h"
-#include "Modules/mabModule.h"
 #include "io.h"
+#include "modulesList.h"
+
 
 class TCP;
 
@@ -16,11 +17,12 @@ class Lobby : public Module{
     metaData * m;
     Game * game;
     User * host;
+    vector<string> gamesList;
 public:
     Lobby(TCP * _tcp, User * host_){
         users.push_back(host_);
         host = host_;
-        addCommand("module", "Select a module", "string", "name of the module you want", StateChangeAction);
+        addCommand("module", "Select a module", "string", "name OR number of the module you want", StateChangeAction);
         addCommand("list", "List all available modules", "", "", NonStateChangeAction);
         tcp = _tcp;
     }
@@ -30,7 +32,13 @@ public:
     }
 
     string listModules(){
-        return "mab";
+        string output = "";
+        gamesList = getGames();
+        for (int x = 0; x < gamesList.size(); x++){
+          output += itos(x + 1) + ". " + gamesList[x];
+          output += conditionalString("", "\n", x == gamesList.size()-1);
+        }
+        return output;
     }
     string instructions(){
         return "Testing";
@@ -61,7 +69,7 @@ public:
     string listRequiredUsers(){
       string output = m->name + " ";
       if (m->numPlayers.size() == 1){
-        output += "requires " + itos(m->numPlayers[0]) + " player" + conditionalPlural(".", "s.", m->numPlayers[0]);
+        output += "requires " + itos(m->numPlayers[0]) + " player" + conditionalString(".", "s.", m->numPlayers[0] == 1);
       } else {
           if (consecutiveAscendingInts(m->numPlayers)){
               output += "is for " + itos(m->numPlayers[0]) + "-" + itos(m->numPlayers[m->numPlayers.size()-1]) + " players.";
@@ -79,7 +87,7 @@ public:
               }
           }
       }
-      output += "\nCurrently there " + conditionalPlural("is", "are", users.size()) + " " + itos(users.size()) + " " + conditionalPlural("player.", "players.", users.size());
+      output += "\nCurrently there " + conditionalString("is", "are", users.size() == 1) + " " + itos(users.size()) + " " + conditionalString("player.", "players.", users.size() == 1);
       if (validNumUsers()){
           output += " Module can be launched.";
       } else {
@@ -90,22 +98,23 @@ public:
 
     string selectModule(string module){ // Add to this with first removing the option-altering commands, then at the end if found == true, add them back
         string output = "Module not found.";
-        bool found = false;
-        if (module == "mab"){
-            found = true;
-            m = new metaMabModule();
-            game = new mabModule();
-            output = m->name + " module selected.\n";
-            sort(m->numPlayers.begin(), m->numPlayers.begin() + m->numPlayers.size());
-            output += listRequiredUsers();
+        if (isNum(module) && strtoi(module)-1 >= 0 && strtoi(module)-1 < gamesList.size()){
+          module = gamesList[strtoi(module)-1];
         }
-        if (found){
+        game = getGame(module);
+        if (game != 0){
+            m = game->defaultOptions();
+            output = m->name + " module selected.\n";
+            //if (m->numPlayersDesc != ""){
+                sort(m->numPlayers.begin(), m->numPlayers.begin() + m->numPlayers.size());
+                output += listRequiredUsers();
+            //}
             addCommand("listOptions", "List all of the settable options for this game.", "", "", NonStateChangeAction);
             addCommand("setOption", "Set a specific option", "string string", "Option number~New value", StateChangeAction);
             addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "", NonStateChangeAction);
             addCommand("connect", "Connect to a user", "", "", StateChangeAction);
             addCommand("kick", "kick a user", "int", "the user's lobby number", StateChangeAction);
-            addCommand("testPlay", "test", "", "", MetaAction);
+            addCommand("launch", "test", "", "", MetaAction);
             addCommand("promote", "Promote a user to host", "int", "the user's lobby number", MetaAction);
         }
         return output;
@@ -176,7 +185,7 @@ public:
         return output;
     }
 
-    string testPlay(){
+    string launch(){
       string output = "Unknown error.";
       if (validNumUsers()){
         game->init(*m, users, tcp);
@@ -216,8 +225,8 @@ public:
             output = loadUser();
         } else if (words[0] == "kick" && arity == 1){
             output = kick(words[1]);
-        } else if (words[0] == "testPlay" && arity == 0){
-          output = testPlay();
+        } else if (words[0] == "launch" && arity == 0){
+          output = launch();
         } else if (words[0] == "promote" && arity == 1){
           output = promote(words[1]);
         }

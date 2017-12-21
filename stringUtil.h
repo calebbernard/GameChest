@@ -14,4 +14,4 @@ int strtoi(string s);
 
 void splitString(string s, vector<string> &arr, string delimiter);
 
-string conditionalPlural(string singular, string plural, int count);
+string conditionalString(string a, string b, bool condition);

@@ -1,5 +1,4 @@
 #include "mabModule.h"
-#include "../stringUtil.h"
 
 using namespace std;
 
@@ -57,10 +56,6 @@ using namespace std;
             void mabModule::mab::reset(){
                 turnsLeft = startTurns;
                 score = 0;
-            }
-
-            mabModule::mabModule(){
-                return;
             }
 
         void mabModule::init(metaData m, vector<User*> u, TCP * _tcp){
@@ -144,9 +139,8 @@ using namespace std;
             return output;
         }
 
-        metaData mabModule::defaultOptions(){
-            metaMabModule m;
-            return m;
+        metaData* mabModule::defaultOptions(){
+            return new metaMabModule();
         }
 
         string mabModule::name(){
