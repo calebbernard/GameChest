@@ -4,6 +4,12 @@ TCP_IP = '127.0.0.1'
 TCP_PORT = 5555
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
+inputReady = "#Ready for input."
+
+def specialInput(m):
+    if m[0] == "#":
+        return True
+    return False
 
 def sendMsg(m):
     l = str(len(m))
@@ -28,15 +34,27 @@ def e():
     sendMsg("#")
 
 def r():
-    print recvMsg()
+    reply = ""
+    fullReply = ""
+    receiving = True
+    while receiving:
+        reply = recvMsg()
+        if not specialInput(reply):
+            fullReply += reply
+        else:
+            if reply == inputReady:
+                receiving = False
+    return fullReply
 
 def get(m): # Sends a message and returns the reply
     sendMsg(m)
-    return recvMsg()
+    reply = r()
+    return reply
 
 def g(m): # Sends a message, prints the reply, and then returns it
     reply = get(m)
-    print reply
+    if reply != "":
+        print reply
     return reply
 
 def d():
@@ -56,7 +74,13 @@ def i():
         finished = d()
 
 # client code goes here
-r()
+print r()
+g("Caleb")
+g("module 5CardDraw")
+g("launch")
+g("myStatus")
+g("ante")
+g("draw")
 i()
 
 

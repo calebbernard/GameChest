@@ -30,4 +30,5 @@ public:
     void output (User * u, string msg);
     string input(User * u);
     int connect();
+    string getInput(User * u);
 };

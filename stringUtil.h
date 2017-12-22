@@ -15,3 +15,5 @@ int strtoi(string s);
 void splitString(string s, vector<string> &arr, string delimiter);
 
 string conditionalString(string a, string b, bool condition);
+
+string underline(int length);

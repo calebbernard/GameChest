@@ -15,7 +15,7 @@ public:
         for (int x = 2; x < 20; x+=2){
           numPlayers.push_back(x);
         }
-        numPlayers.push_back(2);
+        //numPlayers.push_back(2);
         Option o;
         o.name = "Number of rounds";
         o.value = "1000";

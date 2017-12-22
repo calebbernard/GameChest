@@ -42,3 +42,11 @@ string conditionalString(string a, string b, bool condition){
     }
     return b;
 }
+
+string underline(int length){
+  string output = "";
+  for (int x = 0; x < length; x++){
+    output += "-";
+  }
+  return output;
+}

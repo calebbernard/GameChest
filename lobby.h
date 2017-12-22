@@ -22,6 +22,7 @@ public:
     Lobby(TCP * _tcp, User * host_){
         users.push_back(host_);
         host = host_;
+        gamesList = getGames();
         addCommand("module", "Select a module", "string", "name OR number of the module you want", StateChangeAction);
         addCommand("list", "List all available modules", "", "", NonStateChangeAction);
         tcp = _tcp;
@@ -33,7 +34,6 @@ public:
 
     string listModules(){
         string output = "";
-        gamesList = getGames();
         for (int x = 0; x < gamesList.size(); x++){
           output += itos(x + 1) + ". " + gamesList[x];
           output += conditionalString("", "\n", x == gamesList.size()-1);
@@ -68,7 +68,9 @@ public:
 
     string listRequiredUsers(){
       string output = m->name + " ";
-      if (m->numPlayers.size() == 1){
+      if (m->numPlayersDesc != ""){
+        output += m->numPlayersDesc;
+      } else if (m->numPlayers.size() == 1){
         output += "requires " + itos(m->numPlayers[0]) + " player" + conditionalString(".", "s.", m->numPlayers[0] == 1);
       } else {
           if (consecutiveAscendingInts(m->numPlayers)){
@@ -102,13 +104,11 @@ public:
           module = gamesList[strtoi(module)-1];
         }
         game = getGame(module);
-        if (game != 0){
+        if (game != 0){ // not working
             m = game->defaultOptions();
             output = m->name + " module selected.\n";
-            //if (m->numPlayersDesc != ""){
-                sort(m->numPlayers.begin(), m->numPlayers.begin() + m->numPlayers.size());
-                output += listRequiredUsers();
-            //}
+            sort(m->numPlayers.begin(), m->numPlayers.begin() + m->numPlayers.size());
+            output += listRequiredUsers();
             addCommand("listOptions", "List all of the settable options for this game.", "", "", NonStateChangeAction);
             addCommand("setOption", "Set a specific option", "string string", "Option number~New value", StateChangeAction);
             addCommand("listUsers", "Lists the currently connected users, as well as remaining spots to be filled.", "", "", NonStateChangeAction);

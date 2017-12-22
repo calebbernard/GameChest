@@ -1,4 +1,4 @@
-// Multi-Armed Bandit
+// MultiArmedBandit
 #pragma once
 
 #include "../dataStructures.h"

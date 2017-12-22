@@ -21,6 +21,7 @@ using namespace std;
 int main(){
     TCP tcp;
     tcp.init(5555);
+    srand(time(0));
     cout << "Waiting for host...\n";
     int conn = tcp.connect();
     cout << "Host connected.\n";
@@ -29,7 +30,6 @@ int main(){
     tcp.output(host, "Hey! You're the host. What's your name?");
     host->name = tcp.input(host);
     Module * lobby = new Lobby(&tcp, host);
-    string command;
     lobby->turnManager();
     return 0;
 }

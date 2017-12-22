@@ -67,6 +67,7 @@ public:
     virtual string parse(string request);
     virtual void addCommand(string keyword, string description, string argTypes, string argDescriptions, ActionType action);
     virtual void removeCommand(string keyword_, int arity_);
+    virtual void removeAllActiveCommands();
     virtual void turnManager();
     virtual User * next();
     virtual void broadcast(string msg);

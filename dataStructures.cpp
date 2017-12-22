@@ -44,7 +44,7 @@
     string Module::invalidInput(bool blankString = false){
         string output;
         if (blankString){
-            output = "Currently avaliable commands:";
+            output = "Currently available commands:";
         } else {
             output = "Invalid command. Current options:";
         }
@@ -89,6 +89,14 @@
         }
     }
 
+    void Module::removeAllActiveCommands(){
+        for (int x = 0; x < availableCommands.size(); x++){
+          if (availableCommands[x].action == StateChangeAction){
+            removeCommand(availableCommands[x].keyword, availableCommands[x].argument.size());
+          }
+        }
+    }
+
     void Module::addCommand(string keyword, string description, string argTypes, string argDescriptions, ActionType action){
         vector<string> args;
         if (argTypes != ""){
@@ -130,7 +138,7 @@
             if (users[x]->outputLast){
                 tcp->input(users[x]);
             }
-            tcp->output(users[x], "Broadcast: " + msg);
+            tcp->output(users[x], "#Broadcast: " + msg);
         }
     }
 

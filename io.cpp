@@ -15,21 +15,22 @@ void TCP::output (User * u, string msg){
         length = "0" + length;
     }
     string finalMsg = length + msg;
-    if (u->outputLast == true){
-      cout << "Error: writing output to this user twice before reading.\n";
-      cout << "Attempted output: " << msg << "\n";
-      return;
-    }
+    //if (u->outputLast == true){
+      //cout << "Error: writing output to this user twice before reading.\n";
+      //cout << "Attempted output: " << msg << "\n";
+      //return;
+    //}
     write(u->conn, finalMsg.c_str(), finalMsg.length());
     u->outputLast = true;
 }
 string TCP::input(User * u){
     bzero(buffer, 99999);
-    if (u->outputLast == false){
-      cout << "Error: reading input from this user twice before responding.\n";
-      output(u, "#");
-      return "";
-    }
+    //if (u->outputLast == false){
+      //cout << "Error: reading input from this user twice before responding.\n";
+      //output(u, "#");
+      //return "";
+    //}
+    output(u, "#Ready for input.");
     read(u->conn, buffer, 5);
     for (int x = 0; x < 5; x++){
         if (buffer[x] == '\0'){
