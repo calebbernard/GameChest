@@ -14,3 +14,18 @@
         their custom user-specific logic in a setup method.
 - result handling should be module override-able but there should be a few basic styles like winners/losers & scoreboard
 - tag output for bots or humans or general, and clients can choose how to parse it
+- Five card draw turns out to require a pretty good bit of work to implement. After finishing it, I should think long & hard on what can/should
+    be abstracted out into the engine. (things like stage advancing / command juggling seem natural to abstract)
+- some engine way to handle "subturns" for instance, if on my turn I take an action that makes another player perform a reaction, but within the
+    context of it still being my turn. Recursion smells like a fit here.
+- Games to work with:
+    - King of Tokyo
+    - Go Fish
+    - Rubik's Cube minimal turn searching (this might can be brute forced, but a machine learner doesn't know that).
+        - This also works as a indirect pvp sample
+- Games to keep in mind/long term:
+    - Time stories
+    - Texas hold em
+    - Dominion
+    - Catan
+- Something's wrong with the input deal at least on go fish

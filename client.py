@@ -76,11 +76,6 @@ def i():
 # client code goes here
 print r()
 g("Caleb")
-g("module 5CardDraw")
-g("launch")
-g("myStatus")
-g("ante")
-g("draw")
 i()
 
 
