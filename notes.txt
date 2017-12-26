@@ -22,6 +22,7 @@
     - King of Tokyo
     - Go Fish
     - Rubik's Cube minimal turn searching (this might can be brute forced, but a machine learner doesn't know that).
+    - Prisoner's Dilemma (Only works in a round robin format)
         - This also works as a indirect pvp sample
 - Games to keep in mind/long term:
     - Time stories
@@ -36,3 +37,12 @@
 - Come up with a pleasant way to abstract out building up range and collection strings.
 - Think about how we want to output #RANGE, #COLLECTION, etc. Should they fall under a parent # like #ARG or something? Like what about
     #ARG.RANGE(1,925) or #ARG.COLLECTION(1, 3, 5, 6, 7). That way, we can add in new arg types and client code will fail more gracefully on it.
+- Mull over this #FAMILY concept. See if we can put everything in it. For instance, #MSG.BROADCAST, #MSG.INPUTREADY, etc. this will let client
+    code set up smarter rules about # output. It can even file complaints to the user about unknown #FAMILY.MEMBERS
+- Consider a standardized myInfo command that shows you all your stuff as well as public knowledge for each enemy.
+- Come up with a less terrible turn management system. Stages should be automatic. Stages should have a collection of commands.
+    - These commands are also dependent on current stage state. Stage can be a high-level class, and updating its state can happen early in
+        the turn manager. Try to get some kind of auto-detection of when to move on from a turn or stage etc but don't sweat that one too hard
+        right away.
+- Low priority, but think about making a file for common elements like cards, boards/pieces, etc. Really generic board/piece code which makes
+    everything from candyland to chess easier would be delightful, but requires care.
