@@ -28,4 +28,11 @@
     - Texas hold em
     - Dominion
     - Catan
-- Something's wrong with the input deal at least on go fish
+- Something's wrong with the input deal at least on go fish. I might be using an old client? Make sure the
+    read-&-print-until-your-turn loop is working.
+- Formalize the #RANGE and #COLLECTION deals. Think about reworking the command class to handle/output these better. Think about using them
+    in game options (For instance in lieu of the current numPlayers system). Consider making a range class and a collection class (and
+        maybe a few others dealing with strings, decimals, etc.)
+- Come up with a pleasant way to abstract out building up range and collection strings.
+- Think about how we want to output #RANGE, #COLLECTION, etc. Should they fall under a parent # like #ARG or something? Like what about
+    #ARG.RANGE(1,925) or #ARG.COLLECTION(1, 3, 5, 6, 7). That way, we can add in new arg types and client code will fail more gracefully on it.
