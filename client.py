@@ -39,45 +39,33 @@ def r():
     receiving = True
     while receiving:
         reply = recvMsg()
-        if not specialInput(reply):
-            fullReply += reply
+        if reply == inputReady:
+            receiving = False
         else:
-            if reply == inputReady:
-                receiving = False
+            if reply != "":
+                print reply
+            fullReply += reply
     return fullReply
-
-def get(m): # Sends a message and returns the reply
-    sendMsg(m)
-    reply = r()
-    return reply
-
-def g(m): # Sends a message, prints the reply, and then returns it
-    reply = get(m)
-    if reply != "":
-        print reply
-    return reply
 
 def d():
     x = raw_input("> ")
     if x == "#auto":
         return True
+    sendMsg(x)
     if x == "#":
-        sendMsg(x)
         s.close()
         exit()
-    g(x)
     return False
 
 def i():
     finished = False
     while not finished:
         finished = d()
+        r()
 
 # client code goes here
-print r()
-g("Caleb")
+r()
 i()
-
 
 e()
 s.close()

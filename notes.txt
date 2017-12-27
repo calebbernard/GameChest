@@ -1,12 +1,22 @@
 - Need some way to handle users disconnecting
+    - Status: Getting there. The broadcast and read-till-your-turn systems lay the groundwork. Need to figure out what code
+        to wrap in try/catch to detect when a socket is closed, broadcast a "Oops abort mission" message to all other users, then
+        probably end the server. We could probably just wrap the lobby's turn manager call in the try and grab everything beneath that.
+        - Eventually I'd prefer not to throw on user disconnect, but to treat that as a generic forfeit. This would require having a
+            generalized concept of forfeit handling though, so it can wait till then since disconnect-handling is an edge use case.
 - Some way to handle passing off host duties (might should move host processing loop into lobby module)
-- Perhaps a results enum member for win-by-default when other players forfeit or disconnect unexpectedly
+    - Status: Done
 - I think I'm on track for this, but make sure that modules with a variable number of users are handled appropriately
+    - Status: Done
 - Consider implementing type checking in general (low priority for now)
 - Add in some kind of min-max constraint checking to option object (at least for ints) so we don't get rejected when loading module
     - alternatively we could revert to default when processing the options if that option's value is out of range
+    - Status: not yet done, but this is parallel to the command constraint initiative and can probably borrow from that.
+        - The easiest way would be to implement fallback to default on illegal option values, then give options a string holding a #ARG
+            to describe what we expect
 - How to handle loading in users? We could have a blocking load command (problematic, no way to back out, but could be a start)
     - Or, we could spawn children to get the connection, then have a checkConnections command for the host to rope in those socket ids.
+    - Status: The blocking load command is done, however this is not necessarily the final implementation.
 - For the purposes of host-passing-off duties as well as to lay the foundation for eventual turn-management in submodules,
     I should add a turn management function to the base module class. Lobby turn management would poll whoever the host is over and over.
     Single-user modules would poll their one user over and over. Multi-user modules would have fancy logic.
@@ -46,3 +56,7 @@
         right away.
 - Low priority, but think about making a file for common elements like cards, boards/pieces, etc. Really generic board/piece code which makes
     everything from candyland to chess easier would be delightful, but requires care.
+- Variable isolation/typing for bots. Gotta think through how to implement this. Can probably be done on a game-by-game basis.
+- Block users from having the same name.
+- Block users from having whitespace in name.
+- Go fish: fix books, add victory

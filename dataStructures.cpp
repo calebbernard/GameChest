@@ -135,10 +135,7 @@
 
     void Module::broadcast(string msg){
         for (int x = 0; x < users.size(); x++){
-            if (users[x]->outputLast){
-                tcp->input(users[x]);
-            }
-            tcp->output(users[x], "#Broadcast: " + msg);
+            tcp->output(users[x], msg);
         }
     }
 
@@ -149,7 +146,9 @@
       while (!gameFinished){
           string input = tcp->input(current);
           if (input == "#"){
-            broadcast(current->name + " disconnected. Returning to lobby.");
+            broadcast(current->name + " disconnected. Shutting down server.");
+            broadcast("#");
+            throw(1);
             return;
           }
           tcp->output(current, parse(input));

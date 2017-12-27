@@ -30,6 +30,11 @@ int main(){
     tcp.output(host, "Hey! You're the host. What's your name?");
     host->name = tcp.input(host);
     Module * lobby = new Lobby(&tcp, host);
-    lobby->turnManager();
+    try{
+        lobby->turnManager();
+    } catch(int e){
+        cout << "Error encountered. Server closing.\n";
+    }
+    
     return 0;
 }

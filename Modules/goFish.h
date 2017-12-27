@@ -150,8 +150,12 @@ class playingCard{
 public:
     vector<Player> p;
     Player * current;
+    Player * backup;
+    string demandRank;
+    bool subTurnDone;
     playingCardPile deck;
     void init(metaData m, vector<User*> u, TCP * _tcp){
+        broadcast("Welcome to Go Fish!");
         tcp = _tcp;
         users = u;
         int startingHandSize = strtoi(m.options[0].value);
@@ -174,27 +178,165 @@ public:
       string output = "Go Fish";
       return output;
     }
-    string myHand(){
+    string myInfo(){
+        for (int x = 0; x < p.size(); x++){
+          tcp->output(&p[x], current->name + " is checking their info");
+        }
         string output = "";
+        output += current->name + "\n";
+        output += underline(current->name.length()) + "\n";
+        output += "Hand: ";
+        output += "";
         if (current->hand.p.size() == 0){
-            output += "empty";
+            output += "";
         } else {
             for (int x = 0; x < current->hand.p.size(); x++){
-                output += current->hand.p[x].sayName(false) + conditionalString("", " ", x == current->hand.p.size() - 1);
+                output += current->hand.p[x].sayName(false) + conditionalString("", ", ", x == current->hand.p.size() - 1);
             }
+        }
+        output += "\nBooks: ";
+        for (int x = 0; x < current->books.size(); x++){
+          output += itos(current->books[x]) + conditionalString("", ", ", x == current->books.size() - 1);
+        }
+        output += "\n\n";
+        for (int x = 0; x < p.size(); x++){
+          if (p[x].conn != current->conn){
+            output += p[x].name + "\n" + underline(p[x].name.length()) + "\nBooks: ";
+            if (p[x].books.size() != 0){
+              for (int y = 0; y < current->books.size(); y++){
+                output += itos(p[x].books[y]) + conditionalString("", ", ", y == p[x].books.size() - 1);
+              }
+            }
+          }
         }
         return output;
     }
+    void checkBooks(){
+      string ranks[] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+      for (int x = 0; x < 13; x++){
+        for (int y = 0; y < p.size(); y++){
+          int count = 0;
+          vector<int> toErase;
+          for (int z = 0; z < p[y].hand.p.size(); z++){
+            if (p[y].hand.p[z].rank == ranks[x]){
+              count++;
+              toErase.push_back(z);
+            }
+          }
+          if (count >= 4){
+            for (int zz = 0; zz < toErase.size(); zz++){
+              p[y].hand.p.erase(p[y].hand.p.begin() + zz);
+            }
+            p[y].books.push_back(x);
+            broadcast(p[y].name + " has a book of " + ranks[x] + "!");
+          }
+        }
+      }
+    }
+    string giveCards(){
+      playingCardPile giving;
+      vector<int> toErase;
+      for (int x = 0; x < current->hand.p.size(); x++){
+        if (current->hand.p[x].rank == demandRank){
+          giving.addToTop(current->hand.p[x]);
+          toErase.push_back(x);
+        }
+      }
+      for (int x = 0; x < toErase.size(); x++){
+        current->hand.p.erase(current->hand.p.begin() + toErase[x]);
+      }
+      for (int x = 0; x < giving.p.size(); x++){
+        backup->hand.addToBottom(giving.p[x]);
+      }
+      broadcast(current->name + " gives " + backup-> name + " " + itos(giving.p.size()) + " " + giving.p[0].rank + conditionalString("s.", ".", giving.p.size() > 1));
+      current->turnStage = "done";
+      current = backup;
+      current->turnStage = "done";
+      cout << "HERE!!!\n";
+      checkBooks();
+      return "";
+    }
+    string tellToFish(){
+      broadcast(current->name + " tells " + backup->name + " to go fish.");
+      current->turnStage = "done";
+      current = backup;
+      current->turnStage = "fishing";
+      return "";
+    }
     string ask(string player, string rank){
         string output = "";
-        output += "test";
+        if (player == current->name){
+          return "You can't ask yourself for cards.";
+        }
+        if (rank == "j"){
+            rank = "J";
+        }
+        if (rank == "q"){
+            rank = "Q";
+        }
+        if (rank == "k"){
+            rank = "K";
+        }
+        if (rank == "a"){
+            rank = "A";
+        }
+        bool validRank = false;
+        if ((strtoi(rank) >= 2 && strtoi(rank) <= 10) || rank == "J" || rank == "Q" || rank == "K" || rank == "A"){
+          validRank = true;
+        }
+        if (!validRank){
+          return "That rank not recognized.";
+        }
+        bool hasAtLeastOne = false;
+        for (int x = 0; x < current->hand.p.size(); x++){
+          if (rank == current->hand.p[x].rank){
+            hasAtLeastOne = true;
+          }
+        }
+        if (!hasAtLeastOne){
+          return "You don't have that rank yourself, so you can't ask for it.";
+        }
+        bool validPlayer = false;
+        for (int x = 0; x < p.size(); x++){
+          if (player == p[x].name){
+            validPlayer = true;
+            backup = current;
+            current = &p[x];
+            
+            demandRank = rank;
+            string msg = backup->name + " says: Do you have any " + demandRank + "s?";
+            tcp->output(current, msg);
+            bool hasHuntedCards = false;
+            for (x = 0; x < current->hand.p.size(); x++){
+              if (current->hand.p[x].rank == demandRank){
+                hasHuntedCards = true;
+              }
+            }
+            if (hasHuntedCards){
+              current->turnStage = "giving cards";
+            } else {
+              current->turnStage = "saying go fish";
+            }
+          }
+        }
+        if (!validPlayer){
+          return "That player not found.";
+        }
         return output;
     }
     string fish(){
         string output = "";
         playingCard c = deck.draw();
-        current->hand.addToTop(c);
-        output += "Drew " + c.sayName();
+        current->hand.addToBottom(c);
+        broadcast(current->name + " drew the " + c.sayName() + ".");
+        checkBooks();
+        if (c.rank == demandRank){
+          broadcast("Since this is what they were looking for, they get another turn!");
+          current->turnStage = "asking";
+        } else {
+          output = "Sorry, turn over!";
+          current->turnStage = "done";
+        }
         return output;
     }
     string runCommand(vector<string> words, int arity){
@@ -202,23 +344,33 @@ public:
       if (words[0] == "?" && arity == 0){
           output = instructions();
       } else if (words[0] == "myHand" && arity == 0){
-          output = myHand();
+          output = myInfo();
       } else if (words[0] == "ask" && arity == 2){
           output = ask(words[1], words[2]);
       } else if (words[0] == "goFish" && arity == 0){
           output = fish();
+      } else if (words[0] == "giveCards" && arity == 0){
+        output = giveCards();
+      } else if (words[0] == "tellGoFish" && arity == 0){
+        output = tellToFish();
       }
       return output;
     }
     Player * nextp(){
+      Player * next;
+      bool nextFound = false;
       for (int x = 0; x < p.size(); x++){
         if (p[x].conn == current->conn){
           if (x < p.size() - 1){
-            return &p[x+1];
+            next = &p[x+1];
+            nextFound = true;
           }
         }
       }
-      return &p[0];
+      if (!nextFound){
+        next = &p[0];
+      }
+      return next;
     }
     void prepareCommands(){
       string stage = current->turnStage;
@@ -249,7 +401,13 @@ public:
         addCommand("ask", "ask a user for a rank", "string string", "name of user to ask #COLLECTION(" + enemiesList + ")~rank to ask for #COLLECTION(" + ownedRanks + ")", StateChangeAction);
       } else if (stage == "fishing"){
         removeAllActiveCommands();
-        addCommand("goFish", "Draw a card from the deck", "", "", StateChangeAction);
+        addCommand("goFish", "Draw a card from the deck. If it's the card you asked for, you get another turn.", "", "", StateChangeAction);
+      } else if (stage == "giving cards"){
+        removeAllActiveCommands();
+        addCommand("giveCards", "Give " + backup->name + " the cards they've requested.", "", "", StateChangeAction);
+      } else if (stage == "saying go fish"){
+        removeAllActiveCommands();
+        addCommand("tellGoFish", "Tell " + backup->name + " to go fish", "", "", StateChangeAction);
       }
     }
     void turnManager(){
@@ -257,14 +415,19 @@ public:
       current = &p[currentIndex];
       bool gameFinished = false;
       while (!gameFinished){
+          // add checkVictory method
           prepareCommands();
           string input = tcp->input(current);
           if (input == "#"){
-            broadcast(current->name + " disconnected. Returning to lobby.");
-            return;
+            broadcast(current->name + " disconnected.");
+            broadcast("#");
+            throw(1);
           }
           tcp->output(current, parse(input));
-          current = nextp();
+          if (current->turnStage == "done"){
+            current = nextp();
+            current->turnStage = "asking";
+          }
       }
     }
     metaData* defaultOptions(){
