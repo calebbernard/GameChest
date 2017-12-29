@@ -60,3 +60,9 @@
 - Block users from having the same name.
 - Block users from having whitespace in name.
 - Go fish: fix books, add victory
+- Add a card remove thing to deal with that whole debacle
+- Cards, static arrays for ranks and suits for client code to iterate over so we don't have to keep reinventing that wheel
+- Implement the Bot vs human idea so that the # stuff doesn't clog up a regular person
+- Deal with enums, either by shifting to C++11 or by implementing them as a dictionary or something
+- fix the segfault on loading a module by a name that doesn't exist
+- wrap tcp code in an IO interface, and remove tcp details from game code

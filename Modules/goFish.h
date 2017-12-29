@@ -20,6 +20,8 @@ class goFish : public Game {
 private:
 class playingCard{
     public:
+    static string ranks[] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+    static string suits[] = {"D", "S", "H", "C"};
         string rank;
         string suit;
         void resolveNum(int num){
@@ -140,11 +142,12 @@ class playingCard{
         void addToBottom(playingCard c){
           p.insert(p.begin() + p.size(), c);
         }
+        // find, erase
     };
     class Player : public User { // improvement on the current 5 card draw system I think
         public:
         playingCardPile hand;
-        vector<int> books; // this should be checkable by enemies
+        vector<string> books; // this should be checkable by enemies
         string turnStage; // asking, fishing, done
     };
 public:
@@ -196,15 +199,15 @@ public:
         }
         output += "\nBooks: ";
         for (int x = 0; x < current->books.size(); x++){
-          output += itos(current->books[x]) + conditionalString("", ", ", x == current->books.size() - 1);
+          output += current->books[x] + conditionalString("", ", ", x == current->books.size() - 1);
         }
         output += "\n\n";
         for (int x = 0; x < p.size(); x++){
           if (p[x].conn != current->conn){
             output += p[x].name + "\n" + underline(p[x].name.length()) + "\nBooks: ";
             if (p[x].books.size() != 0){
-              for (int y = 0; y < current->books.size(); y++){
-                output += itos(p[x].books[y]) + conditionalString("", ", ", y == p[x].books.size() - 1);
+              for (int y = 0; y < p[x].books.size(); y++){
+                output += p[x].books[y] + conditionalString("", ", ", y == p[x].books.size() - 1);
               }
             }
           }
@@ -227,7 +230,7 @@ public:
             for (int zz = 0; zz < toErase.size(); zz++){
               p[y].hand.p.erase(p[y].hand.p.begin() + zz);
             }
-            p[y].books.push_back(x);
+            p[y].books.push_back(ranks[x]);
             broadcast(p[y].name + " has a book of " + ranks[x] + "!");
           }
         }
